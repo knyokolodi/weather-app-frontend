@@ -19,47 +19,49 @@ import {
 const WeatherDetails = () => {
   const location = useGeoLocation();
   const [currentWeather, setCurrentWeather] = useState({});
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [newError, setNewError] = useState(null);
 
   const { lat, lng, error } = location;
 
   useEffect(() => {
+    const getWeather = async () => {
+      setLoading(true);
+
+      try {
+        const { data } = await axios.get(
+          `${process.env.REACT_APP_API_URL}/weather?lat=${lat}&lon=${lng}&units=metric&appid=${process.env.REACT_APP_API_KEY}`
+        );
+
+        const {
+          main: { temp },
+          weather: [details],
+          name,
+        } = data;
+
+        const icon = `https://openweathermap.org/img/wn/${details.icon}@4x.png`;
+
+        setCurrentWeather({
+          temp,
+          name,
+          details,
+          icon,
+        });
+
+        setLoading(false);
+      } catch (err) {
+        setNewError(err);
+        setLoading(false);
+      }
+    };
+
     if (lat && lng) {
       getWeather();
     } else {
       setNewError(error);
+      setLoading(false);
     }
   }, [location]);
-
-  const getWeather = async () => {
-    setLoading(true);
-
-    try {
-      const { data } = await axios.get(
-        `${process.env.REACT_APP_API_URL}/weather?lat=${lat}&lon=${lng}&units=metric&appid=${process.env.REACT_APP_API_KEY}`
-      );
-
-      const {
-        main: { temp },
-        weather: [details],
-        name,
-      } = data;
-
-      const icon = `https://openweathermap.org/img/wn/${details.icon}@4x.png`;
-
-      setCurrentWeather({
-        temp,
-        name,
-        details,
-        icon,
-      });
-
-      setLoading(false);
-    } catch (err) {
-      setNewError(err);
-    }
-  };
 
   return (
     <>

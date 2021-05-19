@@ -45,4 +45,8 @@ export const WeatherDescription = styled.p`
 
 export const WeatherError = styled.h3`
   color: red;
+
+  @media (max-width: 768px) {
+    text-align: center;
+  }
 `;
